@@ -5,8 +5,16 @@ set(USE_SSE4_INSTRUCTIONS ON CACHE BOOL "Use SSE4 instructions")
 # Make DLIB_ASSERT statements not abort the python interpreter, but just return an error.
 add_definitions(-DDLIB_NO_ABORT_ON_2ND_FATAL_ERROR)
 
-# TODO: remove redundancies between add_python_module and pybind11
-include(../../dlib/cmake_utils/add_python_module)
+# TODO: should we keep this for build compatibility?
+if (PYTHON3)
+    set(PYBIND11_PYTHON_VERSION 3.4)
+else()
+    set(PYBIND11_PYTHON_VERSION 2.6)
+endif()
+
+# include dlib so we can link against it
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../.. dlib_build)
+include_directories(${CMAKE_CURRENT_LIST_DIR}/../..)
 add_subdirectory(../../dlib/external/pybind11 ./pybind11_build)
 
 # Test for numpy
@@ -63,13 +71,9 @@ if(NOT ${DLIB_NO_GUI_SUPPORT})
    list(APPEND python_srcs src/gui.cpp)
 endif()
 
-# pybind11 expects hidded visibility default
-set(CMAKE_CXX_VISIBILITY_PRESET hidden)
-# TODO: remove redundancies between add_python_module and pybind11
-include_directories(../../dlib/external/pybind11/include)
-# pybind11_add_module(dlib ${python_srcs})
-add_python_module(dlib ${python_srcs})
+pybind11_add_module(dlib_ ${python_srcs})
 
 # When you run "make install" we will copy the compiled dlib.so (or dlib.pyd)
 # library file to the python_examples folder.
-install_dlib_to(../../python_examples)
+install(TARGETS dlib_ LIBRARY DESTINATION  ${CMAKE_CURRENT_LIST_DIR}/../../python_examples)
+install(TARGETS dlib_ LIBRARY DESTINATION  ${CMAKE_CURRENT_LIST_DIR}/test)
