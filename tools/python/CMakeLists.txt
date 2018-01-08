@@ -72,6 +72,8 @@ if(NOT ${DLIB_NO_GUI_SUPPORT})
 endif()
 
 pybind11_add_module(dlib_ ${python_srcs})
+set_target_properties(dlib_ 
+        PROPERTIES OUTPUT_NAME dlib)
 
 # When you run "make install" we will copy the compiled dlib.so (or dlib.pyd)
 # library file to the python_examples folder.
