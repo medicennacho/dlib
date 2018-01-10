@@ -205,7 +205,12 @@ def _log_buf(buf):
     if not buf:
         return
     if sys.stdout.encoding:
-        buf = buf.decode(sys.stdout.encoding)
+        try:
+            buf = buf.decode(sys.stdout.encoding)
+        except:
+            buf = buf.decode('iso8859_15')
+            print(buf)
+            
     buf = buf.rstrip()
     lines = buf.splitlines()
     for line in lines:
@@ -241,6 +246,7 @@ def run_process(cmds, timeout=None):
                 buf = q.get(timeout=.1)
             except Empty:
                 buf = b''
+            
             _log_buf(buf)
             elapsed = time.time() - _time
             if timeout and elapsed > timeout:
